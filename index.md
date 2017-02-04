@@ -1,3 +1,9 @@
+---
+# You don't need to edit this file, it's empty on purpose.
+# Edit theme's home layout instead if you wanna make some changes
+# See: https://jekyllrb.com/docs/themes/#overriding-theme-defaults
+layout: home
+---
 ## Setup AWS IAM USERS and permissions using ansible and AWS-CLI
 
 ### Introduction
@@ -81,7 +87,7 @@ Looking at the instructions above, ofcourse we are using iam module of the type 
 
 In the aws console, you should see this after the users are created.
 
-![alt text](https://github.com/Teejay005/tech-blog/blob/master/images/04022017/aws-user-created.png "aws user created")
+![alt text](images/04022017/aws-user-created.png "aws user created")
 
 Run the command from the terminal to create the two users.```ansible-playbook create-user.yml```.
 
@@ -100,7 +106,7 @@ localhost                  : ok=1    changed=1    unreachable=0    failed=0
 ```
 Checking each user further will reveal that it has not been added to any group nor has permission to do anything.
 
-![alt text](https://github.com/Teejay005/tech-blog/blob/master/images/04022017/user_1_page.png "aws user created").
+![alt text](images/04022017/user_1_page.png "aws user created").
 
 
 ### Add users to group
@@ -163,11 +169,11 @@ localhost                  : ok=2    changed=2    unreachable=0    failed=0
 
 Checking the console again, we should have the following information.
 
-![alt text](https://github.com/Teejay005/tech-blog/blob/master/images/04022017/groups_page.png "aws user created")
+![alt text](images/04022017/groups_page.png "aws user created")
 
-![alt text](https://github.com/Teejay005/tech-blog/blob/master/images/04022017/user_1_group.png "aws user created")
+![alt text](images/04022017/user_1_group.png "aws user created")
 
-![alt text](https://github.com/Teejay005/tech-blog/blob/master/images/04022017/user_2_group.png "aws user created")
+![alt text](images/04022017/user_2_group.png "aws user created")
 
 As can be seen from the images above, the groups created listed and also the user added to a group also shows that compared to the other user(my_user_2) not added to any group.
 
