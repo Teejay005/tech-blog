@@ -17,3 +17,31 @@ To run this exercise, the user needs to install the following:
 3. [boto](https://pypi.python.org/pypi/boto/)
 4. [ansible](https://www.ansible.com/)
 5. [awscli](http://docs.aws.amazon.com/cli/latest/userguide/installing.html)
+
+It is important for the user to have an account with [aws](https://aws.amazon.com).
+
+### Configure AWS-CLI
+
+Run the command ```aws configure``` from your terminal. This should prompt you to supply your access key id,secret access key and the default region.
+```
+ AWS Access Key ID [None]: xxxxxxxxxxxxxxx
+ AWS Secret Access Key [None]: xxxxxxxxxxxxxxxxxxxxxxx
+ Default region name [None]: ap-southeast-2
+ Default output format [None]:
+```
+
+The user with the credential used to configure the aws-cli should have permission to create users and groups.
+
+To be sure things are configured correctly, run the command from your ```ls ~/.aws``` terminal. You should have these two files: config and credentials.
+
+The content of the two files are:
+_config_**
+>[default]
+>region = ap-southeast-2
+
+_credentials_**
+>[default]
+>aws_access_key_id = xxxxxxxxxxxxxxx
+>aws_secret_access_key = xxxxxxxxxxxxxxxxxxxxxxx
+
+### Create a user
