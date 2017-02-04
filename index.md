@@ -45,3 +45,56 @@ _credentials_**
 >aws_secret_access_key = xxxxxxxxxxxxxxxxxxxxxxx
 
 ### Create a user
+
+1. Create a file named create-user.yml
+
+copy the instructions below to the file(create-user.yml)
+```
+- hosts: localhost
+  connection: local
+  gather_facts: False
+  vars:
+   temp_pass: "c42wCDT1ETPc"
+
+  tasks:
+  - name: Create two AWS IAM users
+    iam:
+      iam_type: user
+      name: "{{ item }}"
+      state: present
+      password: "{{ temp_pass }}"
+      access_key_state: create
+    with_items:
+       - my_user_1
+       - my_user_2
+```
+Looking at the instructions above, ofcourse we are using iam module of the type user. Possible options are: user, group and role. The two users i want to create are my_user_1 and my_user_2. I am also specify temporary password. This will be changed by each user on first login.
+
+The aws console should this after the users are created.
+![alt text](image link "aws user created")
+
+Run the command from the terminal to create the two users.```ansible-playbook create-user.yml```.
+
+```
+[WARNING]: provided hosts list is empty, only localhost is available
+PLAY [localhost] ***************************************************************
+
+TASK [Create two AWS IAM users] ************************************************
+changed: [localhost] => (item=my_user_1)
+changed: [localhost] => (item=my_user_2)
+
+PLAY RECAP *********************************************************************
+localhost                  : ok=1    changed=1    unreachable=0    failed=0
+```
+
+### Issues
+```
+failed: [localhost] (item=my_user_1) => {"failed": true, "item": "my_user_1", "msg": "Signature expired: 20170204T090827Z is now earlier than 20170204T100848Z (20170204T102348Z - 15 min.)"}
+failed: [localhost] (item=my_user_2) => {"failed": true, "item": "my_user_2", "msg": "Signature expired: 20170204T090830Z is now earlier than 20170204T100850Z (20170204T102350Z - 15 min.)"}
+```
+
+This issue is caused by discrepancy between my local time and aws time. I solved this issue by running this command to update the local time.
+
+```$ date ; sudo service ntp stop ; sudo ntpdate -s time.nist.gov ; sudo service ntp start ; date```
+
+ofcourse, install ntp first.
