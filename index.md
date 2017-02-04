@@ -165,9 +165,9 @@ Checking the console again, we should have the following information.
 
 ![alt text](https://github.com/Teejay005/tech-blog/blob/master/images/04022017/groups_page.png "aws user created")
 
-![alt text](https://github.com/Teejay005/tech-blog/blob/master/images/04022017/user_1_page.png "aws user created")
+![alt text](https://github.com/Teejay005/tech-blog/blob/master/images/04022017/user_1_group.png "aws user created")
 
-![alt text](https://github.com/Teejay005/tech-blog/blob/master/images/04022017/user_2_page.png "aws user created")
+![alt text](https://github.com/Teejay005/tech-blog/blob/master/images/04022017/user_2_group.png "aws user created")
 
 As can be seen from the images above, the groups created listed and also the user added to a group also shows that compared to the other user(my_user_2) not added to any group.
 
