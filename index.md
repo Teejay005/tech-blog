@@ -37,14 +37,14 @@ Run the command ```aws configure``` from your terminal. This should prompt you t
 
 The user with the credential used to configure the aws-cli should have permission to create users and groups.
 
-To be sure things are configured correctly, run the command from your ```ls ~/.aws``` terminal. You should have these two files: config and credentials.
+To be sure things are configured correctly, run the command from your ```ls ~/.aws``` terminal. You should have these two files: **config** and **credentials**.
 
 The content of the two files are:
-_config_**
+**_config_**
 >[default]
 region = ap-southeast-2
 
-_credentials_**
+**_credentials_**
 >[default]
 aws_access_key_id = xxxxxxxxxxxxxxx
 aws_secret_access_key = xxxxxxxxxxxxxxxxxxxxxxx
@@ -92,6 +92,16 @@ changed: [localhost] => (item=my_user_2)
 PLAY RECAP *********************************************************************
 localhost                  : ok=1    changed=1    unreachable=0    failed=0
 ```
+Checking each user further will reveal that it has not been added to any group nor has permission to do anything.
+
+![alt text](https://github.com/Teejay005/tech-blog/blob/master/images/04022017/user_1_page.png "aws user created").
+
+
+### Add users to group
+
+In this section we'll create two groups and add one the user (my_user1) created above.
+
+So, we add another file, create-group.yml with the following content.
 
 ### Issues
 ```
