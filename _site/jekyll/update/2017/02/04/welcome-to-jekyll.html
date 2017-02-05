@@ -6,8 +6,8 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <title>Welcome to Jekyll!</title>
-  <meta name="description" content="You’ll find this post in your _posts directory. Go ahead and edit it and re-build the site to see your changes. You can rebuild the site in many different wa...">
+  <title>Setup AWS IAM USERS and permissions using ansible and AWS-CLI</title>
+  <meta name="description" content="Setup AWS IAM USERS and permissions using ansible and AWS-CLI">
 
   <link rel="stylesheet" href="/assets/main.css">
   <link rel="canonical" href="http://localhost:4000/jekyll/update/2017/02/04/welcome-to-jekyll.html">
@@ -61,25 +61,213 @@
         <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
 
   <header class="post-header">
-    <h1 class="post-title" itemprop="name headline">Welcome to Jekyll!</h1>
+    <h1 class="post-title" itemprop="name headline">Setup AWS IAM USERS and permissions using ansible and AWS-CLI</h1>
     <p class="post-meta"><time datetime="2017-02-04T22:08:18+10:00" itemprop="datePublished">Feb 4, 2017</time></p>
   </header>
 
   <div class="post-content" itemprop="articleBody">
-    <p>You’ll find this post in your <code class="highlighter-rouge">_posts</code> directory. Go ahead and edit it and re-build the site to see your changes. You can rebuild the site in many different ways, but the most common way is to run <code class="highlighter-rouge">jekyll serve</code>, which launches a web server and auto-regenerates your site when a file is updated.</p>
+    <h2 id="setup-aws-iam-users-and-permissions-using-ansible-and-aws-cli">Setup AWS IAM USERS and permissions using ansible and AWS-CLI</h2>
 
-<p>To add new posts, simply add a file in the <code class="highlighter-rouge">_posts</code> directory that follows the convention <code class="highlighter-rouge">YYYY-MM-DD-name-of-post.ext</code> and includes the necessary front matter. Take a look at the source for this post to get an idea about how it works.</p>
+<h3 id="introduction">Introduction</h3>
 
-<p>Jekyll also offers powerful support for code snippets:</p>
+<p>It is no secret that managing users and permissions to any software resource could be a daunting one. There are so many factors to be considered. Despite best efforts in the past, so many people still get it wrong. The things that could go wrong include but not limited to assigning inappropriate permissions to a user, assigning insufficient privilege to a user.</p>
 
-<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="k">def</span> <span class="nf">print_hi</span><span class="p">(</span><span class="nb">name</span><span class="p">)</span>
-  <span class="nb">puts</span> <span class="s2">"Hi, </span><span class="si">#{</span><span class="nb">name</span><span class="si">}</span><span class="s2">"</span>
-<span class="k">end</span>
-<span class="n">print_hi</span><span class="p">(</span><span class="s1">'Tom'</span><span class="p">)</span>
-<span class="c1">#=&gt; prints 'Hi, Tom' to STDOUT.</span></code></pre></figure>
+<p>Actually AWS <a href="http://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html#grant-least-privilege">advises</a> that it is better to assign insufficient privilege to a user rather than over enabling a user.</p>
+<blockquote>
+  <p>It’s more secure to start with a minimum set of permissions and grant additional permissions as necessary, rather than starting with permissions that are too lenient and then trying to tighten them later.</p>
+</blockquote>
 
-<p>Check out the <a href="https://jekyllrb.com/docs/home">Jekyll docs</a> for more info on how to get the most out of Jekyll. File all bugs/feature requests at <a href="https://github.com/jekyll/jekyll">Jekyll’s GitHub repo</a>. If you have questions, you can ask them on <a href="https://talk.jekyllrb.com/">Jekyll Talk</a>.</p>
+<p>Today, we’ll go through how to create AWS group, users and assign permissions to the users/group created using AWS-CLI with ansible module for AWS.</p>
 
+<h3 id="requirements">Requirements</h3>
+
+<p>To run this exercise, the user needs to install the following:</p>
+
+<ol>
+  <li>
+    <p><a href="https://www.python.org/">python</a></p>
+  </li>
+  <li>
+    <p><a href="https://pypi.python.org/pypi/pip">pip</a></p>
+  </li>
+  <li>
+    <p><a href="https://pypi.python.org/pypi/boto/">boto</a></p>
+  </li>
+  <li>
+    <p><a href="https://www.ansible.com/">ansible</a></p>
+  </li>
+  <li>
+    <p><a href="http://docs.aws.amazon.com/cli/latest/userguide/installing.html">awscli</a></p>
+  </li>
+</ol>
+
+<p>It is important for the user to have an account with <a href="https://aws.amazon.com">aws</a>.</p>
+
+<h3 id="configure-aws-cli">Configure AWS-CLI</h3>
+
+<p>Run the command <code class="highlighter-rouge">aws configure</code> from your terminal. This should prompt you to supply your access key id,secret access key and the default region.</p>
+<div class="highlighter-rouge"><pre class="highlight"><code>
+ AWS Access Key ID [None]: xxxxxxxxxxxxxxx
+ AWS Secret Access Key [None]: xxxxxxxxxxxxxxxxxxxxxxx
+ Default region name [None]: ap-southeast-2
+ Default output format [None]:
+
+</code></pre>
+</div>
+
+<p>The user with the credential used to configure the aws-cli should have permission to create users and groups.</p>
+
+<p>To be sure things are configured correctly, run the command from your <code class="highlighter-rouge">ls ~/.aws</code> terminal. You should have these two files: <strong>config</strong> and <strong>credentials</strong>.</p>
+
+<p>The content of the two files are:
+<strong><em>config</em></strong></p>
+<blockquote>
+  <p>[default]
+region = ap-southeast-2</p>
+</blockquote>
+
+<p><strong><em>credentials</em></strong></p>
+<blockquote>
+  <p>[default]
+aws_access_key_id = xxxxxxxxxxxxxxx
+aws_secret_access_key = xxxxxxxxxxxxxxxxxxxxxxx</p>
+</blockquote>
+
+<h3 id="create-a-user">Create a user</h3>
+
+<ol>
+  <li>Create a file named create-user.yml</li>
+</ol>
+
+<p>copy the instructions below to the file(create-user.yml)</p>
+<div class="highlighter-rouge"><pre class="highlight"><code>
+- hosts: localhost
+  connection: local
+  gather_facts: False
+  vars:
+   temp_pass: "c42wCDT1ETPc"
+
+  tasks:
+  - name: Create two AWS IAM users
+    iam:
+      iam_type: user
+      name: ""
+      state: present
+      password: ""
+      access_key_state: create
+    with_items:
+       - my_user_1
+       - my_user_2
+
+</code></pre>
+</div>
+<p>Looking at the instructions above, ofcourse we are using iam module of the type user. Possible options are: user, group and role. The two users i want to create are my_user_1 and my_user_2. I am also specify temporary password. This will be changed by each user on first login.</p>
+
+<p>In the aws console, you should see this after the users are created.</p>
+
+<p><img src="/../../../../../assets/images/04022017/aws-user-created.png" alt="alt text" title="aws user created" /></p>
+
+<p>Run the command from the terminal to create the two users.<code class="highlighter-rouge">ansible-playbook create-user.yml</code>.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>
+[WARNING]: provided hosts list is empty, only localhost is available
+PLAY [localhost] ***************************************************************
+
+TASK [Create two AWS IAM users] ************************************************
+changed: [localhost] =&gt; (item=my_user_1)
+changed: [localhost] =&gt; (item=my_user_2)
+
+PLAY RECAP *********************************************************************
+localhost                  : ok=1    changed=1    unreachable=0    failed=0
+
+</code></pre>
+</div>
+<p>Checking each user further will reveal that it has not been added to any group nor has permission to do anything.</p>
+
+<p><img src="/../../../../../assets/images/04022017/user_1_page.png" alt="alt text" title="aws user created" />.</p>
+
+<h3 id="add-users-to-group">Add users to group</h3>
+
+<p>In this section we’ll create two groups and add one the user (my_user1) created above.</p>
+
+<p>So, we add another file, create-group.yml with the following content:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>
+- hosts: localhost
+  connection: local
+  gather_facts: False
+
+  tasks:
+    - name: Create Two Groups
+      iam:
+        iam_type: group
+        name: ""
+        state: present
+      with_items:
+         - group_1
+         - group_2
+      register: new_groups
+
+    - name:
+      iam:
+        iam_type: user
+        name: my_user_1
+        state: update
+        groups: ""
+      with_items:
+        - group_1
+        - group_2
+
+</code></pre>
+</div>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>
+[WARNING]: provided hosts list is empty, only localhost is available
+
+
+PLAY [localhost] ***************************************************************
+
+TASK [Create Two Groups] *******************************************************
+changed: [localhost] =&gt; (item=group_1)
+changed: [localhost] =&gt; (item=group_2)
+
+TASK [iam] *********************************************************************
+changed: [localhost] =&gt; (item=group_1)
+changed: [localhost] =&gt; (item=group_2)
+
+PLAY RECAP *********************************************************************
+localhost                  : ok=2    changed=2    unreachable=0    failed=0
+
+[root@manager vagrant]#
+
+</code></pre>
+</div>
+
+<p>Checking the console again, we should have the following information.</p>
+
+<p><img src="/../../../../../assets/images/04022017/groups_page.png" alt="alt text" title="aws user created" /></p>
+
+<p><img src="/../../../../../assets/images/04022017/user_1_group.png" alt="alt text" title="aws user created" /></p>
+
+<p><img src="/../../../../../assets/images/04022017/user_2_group.png" alt="alt text" title="aws user created" /></p>
+
+<p>As can be seen from the images above, the groups created listed and also the user added to a group also shows that compared to the other user(my_user_2) not added to any group.</p>
+
+<p>The next step is to add permission to the users to perform some specific tasks.</p>
+
+<h3 id="issues">Issues</h3>
+<div class="highlighter-rouge"><pre class="highlight"><code>
+failed: [localhost] (item=my_user_1) =&gt; {"failed": true, "item": "my_user_1", "msg": "Signature expired: 20170204T090827Z is now earlier than 20170204T100848Z (20170204T102348Z - 15 min.)"}
+failed: [localhost] (item=my_user_2) =&gt; {"failed": true, "item": "my_user_2", "msg": "Signature expired: 20170204T090830Z is now earlier than 20170204T100850Z (20170204T102350Z - 15 min.)"}
+
+</code></pre>
+</div>
+
+<p>This issue is caused by discrepancy between my local time and aws time. I solved this issue by running this command to update the local time.</p>
+
+<p>Run command <code class="highlighter-rouge">$ date ; sudo service ntp stop ; sudo ntpdate -s time.nist.gov ; sudo service ntp start ; date</code></p>
+
+<p>Ofcourse, install ntp first.</p>
 
   </div>
 
