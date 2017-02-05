@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><?xml-stylesheet type="text/xml" href="http://localhost:4000/feed.xslt.xml"?><feed xmlns="http://www.w3.org/2005/Atom"><generator uri="http://jekyllrb.com" version="3.4.0">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2017-02-06T08:29:39+10:00</updated><id>http://localhost:4000//</id><title type="html">tech blog</title><subtitle>Write an awesome description for your new site here. You can edit this line in _config.yml. It will appear in your document head meta (for Google search results) and in your feed.xml site description.
+<?xml version="1.0" encoding="utf-8"?><?xml-stylesheet type="text/xml" href="http://localhost:4000/feed.xslt.xml"?><feed xmlns="http://www.w3.org/2005/Atom"><generator uri="http://jekyllrb.com" version="3.4.0">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2017-02-06T08:51:29+10:00</updated><id>http://localhost:4000//</id><title type="html">tech blog</title><subtitle>Write an awesome description for your new site here. You can edit this line in _config.yml. It will appear in your document head meta (for Google search results) and in your feed.xml site description.
 </subtitle><entry><title type="html">Setup AWS IAM USERS and permissions using ansible and AWS-CLI</title><link href="http://localhost:4000/jekyll/update/2017/02/04/welcome-to-jekyll.html" rel="alternate" type="text/html" title="Setup AWS IAM USERS and permissions using ansible and AWS-CLI" /><published>2017-02-04T22:08:18+10:00</published><updated>2017-02-04T22:08:18+10:00</updated><id>http://localhost:4000/jekyll/update/2017/02/04/welcome-to-jekyll</id><content type="html" xml:base="http://localhost:4000/jekyll/update/2017/02/04/welcome-to-jekyll.html">&lt;h2 id=&quot;setup-aws-iam-users-and-permissions-using-ansible-and-aws-cli&quot;&gt;Setup AWS IAM USERS and permissions using ansible and AWS-CLI&lt;/h2&gt;
 
 &lt;h3 id=&quot;introduction&quot;&gt;Introduction&lt;/h3&gt;
@@ -39,12 +39,11 @@
 &lt;h3 id=&quot;configure-aws-cli&quot;&gt;Configure AWS-CLI&lt;/h3&gt;
 
 &lt;p&gt;Run the command &lt;code class=&quot;highlighter-rouge&quot;&gt;aws configure&lt;/code&gt; from your terminal. This should prompt you to supply your access key id,secret access key and the default region.&lt;/p&gt;
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;
- AWS Access Key ID [None]: xxxxxxxxxxxxxxx
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt; AWS Access Key ID [None]: xxxxxxxxxxxxxxx
  AWS Secret Access Key [None]: xxxxxxxxxxxxxxxxxxxxxxx
  Default region name [None]: ap-southeast-2
  Default output format [None]:
-
 &lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
 
@@ -73,8 +72,8 @@ aws_secret_access_key = xxxxxxxxxxxxxxxxxxxxxxx&lt;/p&gt;
 &lt;/ol&gt;
 
 &lt;p&gt;copy the instructions below to the file(create-user.yml)&lt;/p&gt;
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;
-- hosts: localhost
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;- hosts: localhost
   connection: local
   gather_facts: False
   vars:
@@ -91,9 +90,9 @@ aws_secret_access_key = xxxxxxxxxxxxxxxxxxxxxxx&lt;/p&gt;
     with_items:
        - my_user_1
        - my_user_2
-
 &lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
+
 &lt;p&gt;Looking at the instructions above, ofcourse we are using iam module of the type user. Possible options are: user, group and role. The two users i want to create are my_user_1 and my_user_2. I am also specify temporary password. This will be changed by each user on first login.&lt;/p&gt;
 
 &lt;p&gt;In the aws console, you should see this after the users are created.&lt;/p&gt;
@@ -102,8 +101,7 @@ aws_secret_access_key = xxxxxxxxxxxxxxxxxxxxxxx&lt;/p&gt;
 
 &lt;p&gt;Run the command from the terminal to create the two users.&lt;code class=&quot;highlighter-rouge&quot;&gt;ansible-playbook create-user.yml&lt;/code&gt;.&lt;/p&gt;
 
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;
-[WARNING]: provided hosts list is empty, only localhost is available
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;[WARNING]: provided hosts list is empty, only localhost is available
 PLAY [localhost] ***************************************************************
 
 TASK [Create two AWS IAM users] ************************************************
@@ -112,9 +110,9 @@ changed: [localhost] =&amp;gt; (item=my_user_2)
 
 PLAY RECAP *********************************************************************
 localhost                  : ok=1    changed=1    unreachable=0    failed=0
-
 &lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
+
 &lt;p&gt;Checking each user further will reveal that it has not been added to any group nor has permission to do anything.&lt;/p&gt;
 
 &lt;p&gt;&lt;img src=&quot;/../../../../../assets/images/04022017/user_1_page.png&quot; alt=&quot;alt text&quot; title=&quot;aws user created&quot; /&gt;.&lt;/p&gt;
@@ -125,8 +123,7 @@ localhost                  : ok=1    changed=1    unreachable=0    failed=0
 
 &lt;p&gt;So, we add another file, create-group.yml with the following content:&lt;/p&gt;
 
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;
-- hosts: localhost
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;- hosts: localhost
   connection: local
   gather_facts: False
 
@@ -150,12 +147,10 @@ localhost                  : ok=1    changed=1    unreachable=0    failed=0
       with_items:
         - group_1
         - group_2
-
 &lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
 
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;
-[WARNING]: provided hosts list is empty, only localhost is available
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;[WARNING]: provided hosts list is empty, only localhost is available
 
 
 PLAY [localhost] ***************************************************************
@@ -172,7 +167,6 @@ PLAY RECAP *********************************************************************
 localhost                  : ok=2    changed=2    unreachable=0    failed=0
 
 [root@manager vagrant]#
-
 &lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
 
@@ -189,10 +183,9 @@ localhost                  : ok=2    changed=2    unreachable=0    failed=0
 &lt;p&gt;The next step is to add permission to the users to perform some specific tasks.&lt;/p&gt;
 
 &lt;h3 id=&quot;issues&quot;&gt;Issues&lt;/h3&gt;
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;
-failed: [localhost] (item=my_user_1) =&amp;gt; {&quot;failed&quot;: true, &quot;item&quot;: &quot;my_user_1&quot;, &quot;msg&quot;: &quot;Signature expired: 20170204T090827Z is now earlier than 20170204T100848Z (20170204T102348Z - 15 min.)&quot;}
-failed: [localhost] (item=my_user_2) =&amp;gt; {&quot;failed&quot;: true, &quot;item&quot;: &quot;my_user_2&quot;, &quot;msg&quot;: &quot;Signature expired: 20170204T090830Z is now earlier than 20170204T100850Z (20170204T102350Z - 15 min.)&quot;}
 
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;failed: [localhost] (item=my_user_1) =&amp;gt; {&quot;failed&quot;: true, &quot;item&quot;: &quot;my_user_1&quot;, &quot;msg&quot;: &quot;Signature expired: 20170204T090827Z is now earlier than 20170204T100848Z (20170204T102348Z - 15 min.)&quot;}
+failed: [localhost] (item=my_user_2) =&amp;gt; {&quot;failed&quot;: true, &quot;item&quot;: &quot;my_user_2&quot;, &quot;msg&quot;: &quot;Signature expired: 20170204T090830Z is now earlier than 20170204T100850Z (20170204T102350Z - 15 min.)&quot;}
 &lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
 

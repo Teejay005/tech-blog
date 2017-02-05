@@ -34,13 +34,12 @@ It is important for the user to have an account with [aws](https://aws.amazon.co
 ### Configure AWS-CLI
 
 Run the command ```aws configure``` from your terminal. This should prompt you to supply your access key id,secret access key and the default region.
-```
 
+```
  AWS Access Key ID [None]: xxxxxxxxxxxxxxx
  AWS Secret Access Key [None]: xxxxxxxxxxxxxxxxxxxxxxx
  Default region name [None]: ap-southeast-2
  Default output format [None]:
-
 ```
 
 The user with the credential used to configure the aws-cli should have permission to create users and groups.
@@ -62,8 +61,8 @@ aws_secret_access_key = xxxxxxxxxxxxxxxxxxxxxxx
 1. Create a file named create-user.yml
 
 copy the instructions below to the file(create-user.yml)
-```
 
+```
 - hosts: localhost
   connection: local
   gather_facts: False
@@ -81,8 +80,8 @@ copy the instructions below to the file(create-user.yml)
     with_items:
        - my_user_1
        - my_user_2
-
 ```
+
 Looking at the instructions above, ofcourse we are using iam module of the type user. Possible options are: user, group and role. The two users i want to create are my_user_1 and my_user_2. I am also specify temporary password. This will be changed by each user on first login.
 
 In the aws console, you should see this after the users are created.
@@ -91,8 +90,8 @@ In the aws console, you should see this after the users are created.
 
 Run the command from the terminal to create the two users.```ansible-playbook create-user.yml```.
 
-```
 
+```
 [WARNING]: provided hosts list is empty, only localhost is available
 PLAY [localhost] ***************************************************************
 
@@ -102,8 +101,8 @@ changed: [localhost] => (item=my_user_2)
 
 PLAY RECAP *********************************************************************
 localhost                  : ok=1    changed=1    unreachable=0    failed=0
-
 ```
+
 Checking each user further will reveal that it has not been added to any group nor has permission to do anything.
 
 ![alt text](/../../../../../assets/images/04022017/user_1_page.png "aws user created").
@@ -115,8 +114,8 @@ In this section we'll create two groups and add one the user (my_user1) created 
 
 So, we add another file, create-group.yml with the following content:
 
-```
 
+```
 - hosts: localhost
   connection: local
   gather_facts: False
@@ -141,12 +140,10 @@ So, we add another file, create-group.yml with the following content:
       with_items:
         - group_1
         - group_2
-
 ```
 
 
 ```
-
 [WARNING]: provided hosts list is empty, only localhost is available
 
 
@@ -164,7 +161,6 @@ PLAY RECAP *********************************************************************
 localhost                  : ok=2    changed=2    unreachable=0    failed=0
 
 [root@manager vagrant]#
-
 ```
 
 Checking the console again, we should have the following information.
@@ -180,11 +176,10 @@ As can be seen from the images above, the groups created listed and also the use
 The next step is to add permission to the users to perform some specific tasks.
 
 ### Issues
-```
 
+```
 failed: [localhost] (item=my_user_1) => {"failed": true, "item": "my_user_1", "msg": "Signature expired: 20170204T090827Z is now earlier than 20170204T100848Z (20170204T102348Z - 15 min.)"}
 failed: [localhost] (item=my_user_2) => {"failed": true, "item": "my_user_2", "msg": "Signature expired: 20170204T090830Z is now earlier than 20170204T100850Z (20170204T102350Z - 15 min.)"}
-
 ```
 
 This issue is caused by discrepancy between my local time and aws time. I solved this issue by running this command to update the local time.
